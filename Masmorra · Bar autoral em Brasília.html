@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Masmorra · Bar autoral em Brasília</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap">
+<!-- =====================================================================
+  MASMORRA — bar autoral de coquetelaria e música · Brasília
+  Estrutura (fácil de separar para GitHub):
+    1) <style>  → css/style.css
+    2) <body>   → index.html
+    3) <script> → js/app.js
+  Para usar fotos reais: preencha o campo "foto" nos dados (ex.: "img/calabouco.jpg").
+  ===================================================================== -->
+<style>
+/* ============ 1. TOKENS (tema, contraste) ============ */
+:root{
+  --bg:#0e0b0b; --surface:#181312; --line:#3b312d;
+  --text:#f0e8df; --muted:#bcae9f;
+  --accent:#e2a455; --wine:#7a1f2b; --on-wine:#fbf1e8; --focus:#ffd27a; --err:#ff8f86;
+  --serif:"Cormorant Garamond","Cormorant",Georgia,"Times New Roman",serif;
+  --sans:"Jost",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){
+  :root:not([data-theme="dark"]){--bg:#f6f0e8;--surface:#fffdf9;--line:#d8cabb;--text:#1d1613;--muted:#5a4c42;--accent:#8a4b0f;--wine:#8a2433;--focus:#8a2433;--err:#a3150a;color-scheme:light}
+}
+:root[data-theme="light"]{--bg:#f6f0e8;--surface:#fffdf9;--line:#d8cabb;--text:#1d1613;--muted:#5a4c42;--accent:#8a4b0f;--wine:#8a2433;--focus:#8a2433;--err:#a3150a;color-scheme:light}
+:root[data-contrast="high"]{--bg:#000;--surface:#000;--line:#fff;--text:#fff;--muted:#fff;--accent:#ffd24d;--wine:#000;--on-wine:#fff;--focus:#ffd24d;--err:#ff9d94;color-scheme:dark}
+:root[data-contrast="high"][data-theme="light"]{--bg:#fff;--surface:#fff;--line:#000;--text:#000;--muted:#000;--accent:#6b0000;--wine:#fff;--on-wine:#000;--focus:#6b0000;--err:#8a0000;color-scheme:light}
+
+/* ============ 2. BASE ============ */
+*{box-sizing:border-box}
+html{font-size:100%;scroll-padding-top:5.5rem;scroll-behavior:smooth}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font:300 1.05rem/1.75 var(--sans)}
+h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.1;margin:0 0 .5em}
+h1{font-size:clamp(3rem,9vw,6.2rem);font-weight:300;letter-spacing:.01em}
+h1 em,h2 em{font-style:italic;color:var(--accent)}
+h2{font-size:clamp(2rem,4.5vw,3rem);font-weight:300}
+h3{font-size:1.55rem;font-weight:500}
+p{margin:0 0 1em}
+a{color:var(--accent)}
+img{max-width:100%;display:block}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 1.25rem}
+section{padding:5.5rem 0}
+.eyebrow{font:400 .74rem/1 var(--sans);text-transform:uppercase;letter-spacing:.3em;color:var(--accent);margin-bottom:1.1rem;display:flex;gap:.8rem;align-items:center}
+.eyebrow::before{content:"";width:2.2rem;height:1px;background:var(--accent)}
+.center .eyebrow{justify-content:center}.center .eyebrow::after{content:"";width:2.2rem;height:1px;background:var(--accent)}
+.skip{position:absolute;left:-999px;background:var(--accent);color:#000;padding:.5rem 1rem}
+.skip:focus{left:.5rem;top:.5rem;z-index:99}
+.i{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ============ 3. BOTÕES E CAMPOS ============ */
+.btn{font:500 .76rem/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;display:inline-flex;align-items:center;gap:.6rem;padding:.95rem 1.35rem;border:1px solid var(--accent);background:transparent;color:var(--text);border-radius:2px;cursor:pointer;text-decoration:none;transition:background .2s,color .2s}
+.btn:hover{background:var(--accent);color:var(--bg)}
+.btn.primary{background:var(--wine);border-color:var(--wine);color:var(--on-wine)}
+.btn.primary:hover{filter:brightness(1.25);background:var(--wine);color:var(--on-wine)}
+:root[data-contrast="high"] .btn.primary{border-color:var(--text)}
+.btn.ico{padding:.7rem}
+.btn.sm{padding:.65rem 1rem}
+label{display:block;font:400 .72rem var(--sans);letter-spacing:.16em;text-transform:uppercase;margin:0 0 .4rem;color:var(--muted)}
+input,select,textarea{width:100%;font:300 1rem var(--sans);padding:.8rem .9rem;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:2px}
+input[aria-invalid="true"],textarea[aria-invalid="true"]{border:2px solid var(--err)}
+.field{margin-bottom:1.1rem;position:relative}
+.err{color:var(--err);font-size:.85rem;min-height:1.3em}
+.msg{padding:.9rem 1rem;border:1px solid var(--accent);margin-top:1rem}
+[hidden]{display:none!important}
+.pw .btn{position:absolute;right:.3rem;top:1.85rem;border:0;padding:.55rem}
+
+/* ============ 4. CABEÇALHO ============ */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-top:.7rem;padding-bottom:.7rem}
+.logo{display:flex;align-items:center;gap:.7rem;font:400 1.55rem/1 var(--serif);letter-spacing:.32em;text-transform:uppercase;text-decoration:none;color:var(--text)}
+.logo .i{width:1.5rem;height:1.5rem;color:var(--accent);stroke-width:1.1}
+nav ul{list-style:none;display:flex;gap:1.8rem;margin:0;padding:0}
+nav a{font:400 .74rem var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:.4rem 0;border-bottom:1px solid transparent}
+nav a:hover{color:var(--text);border-color:var(--accent)}
+.actions{display:flex;gap:.5rem;align-items:center}
+.menuBtn{display:none}
+@media(max-width:860px){
+  .menuBtn{display:inline-flex}
+  nav{position:absolute;left:0;right:0;top:100%;background:var(--bg);border-bottom:1px solid var(--line);display:none}
+  nav.open{display:block}
+  nav ul{flex-direction:column;gap:0;padding:.5rem 1.25rem 1rem}
+  nav a{display:block;padding:.9rem 0}
+  #loginBtn .t{display:none}
+}
+
+/* ============ 5. HERO + CARROSSEL ============ */
+.hero{padding-top:4.5rem;text-align:center}
+.hero .lead{max-width:34rem;margin:0 auto 2rem;color:var(--muted);font-size:1.15rem}
+.cta{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-bottom:3.5rem}
+.carousel{position:relative;overflow:hidden;border:1px solid var(--line)}
+.track{display:flex;transition:transform .7s cubic-bezier(.6,.05,.2,1)}
+.slide{min-width:100%;margin:0;position:relative}
+.slide img{width:100%;aspect-ratio:16/8;object-fit:cover}
+.slide figcaption{position:absolute;inset:auto 0 0 0;text-align:left;padding:4rem 1.6rem 1.4rem;background:linear-gradient(transparent,rgba(0,0,0,.9));color:#fff}
+.slide figcaption b{display:block;font:400 clamp(1.6rem,4vw,2.4rem)/1.1 var(--serif)}
+.slide figcaption span{opacity:.92}
+.car-ctrl{display:flex;justify-content:center;align-items:center;gap:.8rem;margin-top:1.1rem}
+.dots{display:flex;gap:.2rem}
+.dots button{width:30px;height:30px;padding:0;border:0;background:none;cursor:pointer;display:grid;place-items:center}
+.dots button::before{content:"";width:9px;height:9px;border-radius:50%;border:1px solid var(--accent)}
+.dots button[aria-current="true"]::before{background:var(--accent)}
+
+/* ============ 6. CARDÁPIO ============ */
+.head{display:flex;justify-content:space-between;align-items:end;gap:1rem;flex-wrap:wrap}
+.toolbar{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:1.2rem 0}
+[role="tablist"]{display:flex;gap:.4rem;flex-wrap:wrap}
+[role="tab"]{font:400 .74rem var(--sans);letter-spacing:.16em;text-transform:uppercase;padding:.75rem 1.1rem;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer;border-radius:2px}
+[role="tab"]:hover{border-color:var(--accent)}
+[role="tab"][aria-selected="true"]{background:var(--wine);color:var(--on-wine);border-color:var(--wine)}
+:root[data-contrast="high"] [role="tab"][aria-selected="true"]{border-color:var(--text);text-decoration:underline}
+.search{position:relative;flex:1 1 240px;max-width:340px}
+.search input{padding-left:2.6rem;padding-right:2.6rem}
+.search .i{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.search .btn{position:absolute;right:.2rem;top:50%;transform:translateY(-50%);border:0;padding:.5rem}
+.count{color:var(--muted);font-size:.9rem}
+.grid{display:grid;gap:1.4rem;grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+.card{position:relative;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
+.card:hover{border-color:var(--accent)}
+.card:focus-within{outline:3px solid var(--focus)}
+.card .ph{overflow:hidden}
+.card img{aspect-ratio:3/2;object-fit:cover;width:100%;transition:transform .6s}
+.card:hover img{transform:scale(1.05)}
+.card .body{padding:1.2rem 1.3rem 1.4rem}
+.card .price{float:right;color:var(--accent);font-weight:400;letter-spacing:.06em}
+.card p{color:var(--muted);font-size:.97rem;margin:0}
+.card .ing{font-size:.78rem;letter-spacing:.06em;margin-top:.7rem}
+.stretch{background:none;border:0;color:inherit;font:inherit;text-align:left;padding:0;cursor:pointer}
+.stretch::after{content:"";position:absolute;inset:0}
+.stretch:focus-visible{outline:0}
+
+/* ============ 7. PROGRAMAÇÃO + A CASA ============ */
+.agenda{list-style:none;margin:2rem 0 0;padding:0;border-top:1px solid var(--line)}
+.agenda li{display:grid;grid-template-columns:5.5rem 1fr auto;gap:1.2rem;align-items:center;padding:1.4rem 0;border-bottom:1px solid var(--line)}
+.agenda .day{font:300 2.6rem/1 var(--serif);color:var(--accent)}
+.agenda .day small{display:block;font:400 .68rem var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.agenda h3{margin:0 0 .2rem}.agenda p{margin:0;color:var(--muted)}
+@media(max-width:620px){.agenda li{grid-template-columns:4rem 1fr}.agenda li .btn{grid-column:1/-1;justify-self:start}}
+.about{display:grid;gap:1.4rem;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-top:2rem}
+.about .card .body{padding:2rem 1.6rem}
+.about .i{width:2rem;height:2rem;color:var(--accent);margin-bottom:1rem;stroke-width:1}
+
+/* ============ 8. CONTATO ============ */
+.contact{display:grid;gap:3rem;grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.info{list-style:none;padding:0;margin:2rem 0 0;color:var(--muted)}
+.info li{display:flex;gap:.8rem;margin-bottom:.9rem}
+.info .i{color:var(--accent);margin-top:.25rem}
+.row2{display:grid;gap:1rem;grid-template-columns:1fr 1fr}
+@media(max-width:520px){.row2{grid-template-columns:1fr}}
+
+/* ============ 9. MODAIS E PAINEL DE ACESSIBILIDADE ============ */
+dialog{background:var(--surface);color:var(--text);border:1px solid var(--accent);padding:1.8rem;width:min(92vw,420px);max-height:90vh;overflow:auto}
+dialog.wide{width:min(94vw,720px);padding:0}
+dialog::backdrop{background:rgba(0,0,0,.78)}
+dialog h2{font-size:2rem}
+.dclose{position:absolute;right:.6rem;top:.6rem;z-index:2;background:rgba(0,0,0,.6);color:#fff;border-color:#fff}
+.dbody{padding:1.6rem 1.8rem 1.8rem}
+.dbody img{width:100%;aspect-ratio:3/2;object-fit:cover}
+.panel{position:fixed;right:1rem;top:calc(4.8rem + env(safe-area-inset-top,0px));z-index:30;width:min(92vw,310px);background:var(--surface);border:1px solid var(--accent);padding:1.2rem}
+.panel .line{margin:.9rem 0 0}
+.panel .line>span{display:block;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem}
+.panel .row{display:flex;gap:.4rem;flex-wrap:wrap}
+#top{position:fixed;right:1rem;bottom:calc(1rem + env(safe-area-inset-bottom,0px));z-index:15;background:var(--bg)}
+
+/* ============ 10. RODAPÉ ============ */
+footer{border-top:1px solid var(--line);padding:3.5rem 0 2.5rem;color:var(--muted);font-size:.95rem}
+footer .cols{display:grid;gap:2.2rem;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+footer h2{font:400 .74rem var(--sans);letter-spacing:.26em;text-transform:uppercase;color:var(--text);margin-bottom:1rem}
+footer ul{list-style:none;margin:0;padding:0}footer li{margin-bottom:.4rem}
+footer .linkbtn{background:none;border:0;color:var(--accent);font:inherit;cursor:pointer;padding:0;text-decoration:underline}
+.credits{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--line);font-size:.85rem}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<!-- Sprite de ícones (traço fino, 24x24) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-arch" viewBox="0 0 24 24"><path d="M4 21V11a8 8 0 0 1 16 0v10M8.5 21v-9a3.5 3.5 0 0 1 7 0v9M2.5 21h19"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/></symbol>
+<symbol id="i-a11y" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="7.6" r="1.2"/><path d="M7 10.5l5 1 5-1M12 11.5v3M9.5 18l2.5-3.5 2.5 3.5"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5V5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M5.5 5.5l13 13M18.5 5.5l-13 13"/></symbol>
+<symbol id="i-l" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+<symbol id="i-r" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></symbol>
+<symbol id="i-contrast" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5a7 7 0 1 0-14 0C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></symbol>
+<symbol id="i-ig" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17" cy="7" r=".7" fill="currentColor"/></symbol>
+<symbol id="i-glass" viewBox="0 0 24 24"><path d="M4.5 4.5h15L12 13z"/><path d="M12 13v7M8 20h8"/></symbol>
+<symbol id="i-note" viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="1.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M3.5 11.5l17-7-6.5 16-3-6.5z"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M15.5 7.5l2 2"/></symbol>
+</svg>
+
+<a class="skip" href="#main">Pular para o conteúdo</a>
+
+<!-- ============ CABEÇALHO ============ -->
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#inicio" aria-label="Masmorra, início"><svg class="i"><use href="#i-arch"/></svg>Masmorra</a>
+    <nav id="nav" aria-label="Principal">
+      <ul>
+        <li><a href="#destaques">Destaques</a></li>
+        <li><a href="#cardapio">Cardápio</a></li>
+        <li><a href="#programacao">Programação</a></li>
+        <li><a href="#casa">A casa</a></li>
+        <li><a href="#contato">Contato</a></li>
+      </ul>
+    </nav>
+    <div class="actions">
+      <button class="btn ico" id="a11yBtn" aria-expanded="false" aria-controls="a11yPanel" aria-label="Acessibilidade" title="Acessibilidade" data-ic="a11y"></button>
+      <button class="btn" id="loginBtn" data-ic="user"><span class="t">Entrar</span></button>
+      <button class="btn ico menuBtn" id="menuBtn" aria-expanded="false" aria-controls="nav" aria-label="Abrir menu" data-ic="menu"></button>
+    </div>
+  </div>
+</header>
+
+<!-- Painel de acessibilidade -->
+<div class="panel" id="a11yPanel" role="region" aria-label="Opções de acessibilidade" hidden>
+  <strong style="font:500 1.4rem var(--serif)">Acessibilidade</strong>
+  <div class="line"><span>Tema</span><div class="row"><button class="btn sm" id="themeBtn"></button></div></div>
+  <div class="line"><span>Tamanho da fonte</span><div class="row">
+    <button class="btn sm" id="fMinus" aria-label="Diminuir fonte">A−</button>
+    <button class="btn sm" id="fReset" aria-label="Restaurar tamanho da fonte">A</button>
+    <button class="btn sm" id="fPlus" aria-label="Aumentar fonte">A+</button></div></div>
+  <div class="line"><span>Contraste</span><div class="row"><button class="btn sm" id="hcBtn" aria-pressed="false" data-ic="contrast">Alto contraste</button></div></div>
+</div>
+
+<main id="main">
+<!-- ============ HERO + CARROSSEL ============ -->
+<section class="hero center" id="inicio">
+  <div class="wrap">
+    <p class="eyebrow">Coquetelaria autoral · Música · Brasília</p>
+    <h1>Desça. <em>Fique até tarde.</em></h1>
+    <p class="lead">Drinks de autoria, vinil escolhido a dedo e luz baixa no subsolo da capital. A conversa é a atração principal.</p>
+    <div class="cta">
+      <a class="btn primary" href="#cardapio" data-ic="glass">Ver cardápio</a>
+      <a class="btn" href="#contato" data-ic="cal">Reservar mesa</a>
+    </div>
+  </div>
+  <div class="wrap" id="destaques">
+    <div class="carousel" role="region" aria-roledescription="carrossel" aria-label="Destaques da casa" id="carousel"><div class="track" id="track"></div></div>
+    <div class="car-ctrl">
+      <button class="btn ico" id="prev" aria-label="Destaque anterior" data-ic="l"></button>
+      <div class="dots" id="dots"></div>
+      <button class="btn ico" id="next" aria-label="Próximo destaque" data-ic="r"></button>
+      <button class="btn ico" id="play" aria-label="Pausar rotação automática" data-ic="pause"></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CARDÁPIO ============ -->
+<section id="cardapio">
+  <div class="wrap">
+    <p class="eyebrow">I · Cardápio</p>
+    <h2>Copos e pratos <em>da casa</em></h2>
+    <div class="toolbar">
+      <div role="tablist" aria-label="Categorias do cardápio" id="tabs"></div>
+      <div class="search">
+        <label for="q" style="position:absolute;left:-999px">Buscar por nome ou ingrediente</label>
+        <svg class="i"><use href="#i-search"/></svg>
+        <input id="q" type="search" placeholder="Nome ou ingrediente" autocomplete="off">
+        <button class="btn ico" id="clearQ" aria-label="Limpar busca" data-ic="x" hidden></button>
+      </div>
+    </div>
+    <p class="count" id="count" role="status"></p>
+    <div class="grid" id="grid" role="tabpanel" aria-label="Itens do cardápio"></div>
+  </div>
+</section>
+
+<!-- ============ PROGRAMAÇÃO ============ -->
+<section id="programacao">
+  <div class="wrap">
+    <p class="eyebrow">II · Programação</p>
+    <h2>O som <em>desta semana</em></h2>
+    <ul class="agenda" id="agenda"></ul>
+  </div>
+</section>
+
+<!-- ============ A CASA ============ -->
+<section id="casa">
+  <div class="wrap">
+    <p class="eyebrow">III · A casa</p>
+    <h2>O que nos <em>move</em></h2>
+    <div class="about" id="about"></div>
+  </div>
+</section>
+
+<!-- ============ CONTATO ============ -->
+<section id="contato">
+  <div class="wrap contact">
+    <div>
+      <p class="eyebrow">IV · Contato</p>
+      <h2>Reservas <em>e eventos</em></h2>
+      <p style="color:var(--muted)">Conte como imagina a sua noite. Respondemos em até 24 horas, por e-mail.</p>
+      <ul class="info">
+        <li><svg class="i"><use href="#i-pin"/></svg><span>SCLS 000, Asa Sul<br>Brasília – DF (endereço ilustrativo)</span></li>
+        <li><svg class="i"><use href="#i-clock"/></svg><span>Ter a dom, a partir das 18h</span></li>
+      </ul>
+    </div>
+    <form id="contactForm" novalidate>
+      <div class="row2">
+        <div class="field"><label for="cName">Nome</label><input id="cName" autocomplete="name"><div class="err" id="cNameE"></div></div>
+        <div class="field"><label for="cMail">E-mail</label><input id="cMail" type="email" autocomplete="email"><div class="err" id="cMailE"></div></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label for="cSubj">Assunto</label><select id="cSubj"><option>Reserva de mesa</option><option>Evento privado</option><option>Parceria / música</option><option>Outro</option></select></div>
+        <div class="field"><label for="cDate">Data e horário</label><input id="cDate" type="datetime-local"></div>
+      </div>
+      <div class="field"><label for="cMsg">Mensagem</label><textarea id="cMsg" rows="4"></textarea><div class="err" id="cMsgE"></div></div>
+      <button class="btn primary" type="submit" data-ic="send">Enviar mensagem</button>
+      <div class="msg" id="cOk" role="status" hidden></div>
+    </form>
+  </div>
+</section>
+</main>
+
+<!-- ============ RODAPÉ ============ -->
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div><h2>Masmorra</h2><p>Bar autoral de coquetelaria e música.<br>SCLS 000, Asa Sul<br>Brasília – DF (endereço ilustrativo)</p></div>
+      <div><h2>Horários</h2><ul><li>Ter a qui · 18h–00h</li><li>Sex e sáb · 18h–02h</li><li>Dom · 17h–23h</li><li>Seg · fechado</li></ul></div>
+      <div><h2>Links</h2><ul>
+        <li><a href="#cardapio">Cardápio</a></li><li><a href="#programacao">Programação</a></li><li><a href="#contato">Reservas</a></li>
+        <li><a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">Instagram (abre em nova aba)</a></li>
+        <li><button class="linkbtn" id="privBtn">Política de privacidade</button></li></ul></div>
+    </div>
+    <p class="credits">© 2026 Masmorra. Beba com moderação, proibida a venda para menores de 18 anos. Projeto demonstrativo em HTML, CSS e JS.</p>
+  </div>
+</footer>
+<button class="btn ico" id="top" aria-label="Voltar ao topo" data-ic="up" hidden></button>
+
+<!-- ============ MODAIS ============ -->
+<dialog id="loginDlg" aria-labelledby="loginT">
+  <form id="loginForm" novalidate>
+    <h2 id="loginT">Entrar</h2>
+    <div class="field"><label for="lMail">E-mail</label><input id="lMail" type="email" autocomplete="email"><div class="err" id="lMailE"></div></div>
+    <div class="field pw"><label for="lPass">Senha</label><input id="lPass" type="password" autocomplete="current-password"><button class="btn ico" type="button" id="showPw" aria-label="Mostrar senha" aria-pressed="false" data-ic="eye"></button><div class="err" id="lPassE"></div></div>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+      <button class="btn primary" type="submit" data-ic="key">Entrar</button>
+      <button class="btn" type="button" id="loginClose">Cancelar</button>
+      <button class="linkbtn" type="button" id="forgot" style="background:none;border:0;color:var(--accent);font:inherit;text-decoration:underline;cursor:pointer">Esqueci a senha</button>
+    </div>
+    <div class="msg" id="lMsg" role="status" hidden></div>
+  </form>
+</dialog>
+
+<dialog id="itemDlg" class="wide" aria-labelledby="iName">
+  <button class="btn ico dclose" id="itemClose" aria-label="Fechar" data-ic="x"></button>
+  <img id="iImg" alt="" style="width:100%;aspect-ratio:16/9;object-fit:cover">
+  <div class="dbody">
+    <p class="eyebrow" id="iCat"></p>
+    <h2 id="iName"></h2>
+    <p id="iDesc" style="color:var(--muted)"></p>
+    <p id="iIng" style="font-size:.9rem;letter-spacing:.05em"></p>
+    <p style="font:400 1.4rem var(--serif);color:var(--accent)" id="iPrice"></p>
+    <button class="btn primary" id="iBook" data-ic="cal">Reservar mesa</button>
+  </div>
+</dialog>
+
+<dialog id="privDlg" aria-labelledby="privT">
+  <h2 id="privT">Privacidade</h2>
+  <p style="color:var(--muted)">Usamos seus dados apenas para responder a reservas e contatos. Não vendemos nem compartilhamos informações com terceiros. Esta é uma página demonstrativa: nada que você digita aqui é enviado a um servidor.</p>
+  <button class="btn" id="privClose" data-ic="x">Fechar</button>
+</dialog>
+
+<script>
+/* =====================================================================
+   JS — módulos: utilitários, ícones, "fotos", dados, carrossel, cardápio,
+   programação, acessibilidade, login, contato e modais.
+   ===================================================================== */
+const $ = (s) => document.querySelector(s);
+const norm = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const ic = (n) => `<svg class="i" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const inject = (root = document) => root.querySelectorAll("[data-ic]:not([data-done])").forEach((el) => { el.insertAdjacentHTML("afterbegin", ic(el.dataset.ic)); el.dataset.done = 1; });
+inject();
+
+/* ---------- "Fotografia" com flash em ambiente escuro ----------
+   Renderiza em SVG: fundo com bokeh âmbar, bancada de madeira,
+   brilho especular do flash, vinheta e grão de filme.
+   Para fotos reais, preencha "foto" nos dados. */
+const rng = (s) => () => (s = (s * 16807) % 2147483647) / 2147483647;
+const glassStyle = "fill='rgba(255,255,255,.07)' stroke='rgba(255,236,212,.6)' stroke-width='2'";
+const SCENES = {
+  coupe: (l) => `<path d='M295 195Q298 292 400 302Q502 292 505 195Z' ${glassStyle}/><path d='M310 214Q314 284 400 293Q486 284 490 214Z' fill='${l}' opacity='.93'/><ellipse cx='400' cy='214' rx='90' ry='9' fill='${l}'/><ellipse cx='400' cy='195' rx='105' ry='11' fill='none' stroke='rgba(255,236,212,.65)' stroke-width='2'/><path d='M400 302v96' stroke='rgba(255,236,212,.55)' stroke-width='9'/><ellipse cx='400' cy='402' rx='62' ry='10' fill='rgba(255,236,212,.18)' stroke='rgba(255,236,212,.5)'/><path d='M318 205Q322 262 352 282' stroke='#fff' stroke-width='5' opacity='.8' fill='none' stroke-linecap='round'/><circle cx='472' cy='196' r='10' fill='none' stroke='#ff9d2e' stroke-width='5'/>`,
+  rocks: (l) => `<path d='M330 215L348 382Q400 395 452 382L470 215Z' ${glassStyle}/><path d='M336 262L350 378Q400 390 450 378L464 262Z' fill='${l}' opacity='.92'/><rect x='360' y='238' width='84' height='84' rx='8' fill='#fff' opacity='.24' stroke='#fff' stroke-opacity='.55'/><path d='M342 230L356 366' stroke='#fff' stroke-width='5' opacity='.75' stroke-linecap='round'/><path d='M455 200Q470 168 498 176' stroke='#ff9d2e' stroke-width='7' fill='none' stroke-linecap='round'/>`,
+  tall: (l) => `<path d='M350 130L362 392Q400 402 438 392L450 130Z' ${glassStyle}/><path d='M354 190L363 388Q400 398 437 388L446 190Z' fill='${l}' opacity='.88'/><rect x='372' y='215' width='38' height='38' rx='5' fill='#fff' opacity='.2'/><rect x='392' y='290' width='36' height='36' rx='5' fill='#fff' opacity='.2'/><g fill='#2f8a45'><ellipse cx='385' cy='150' rx='25' ry='11' transform='rotate(-25 385 150)'/><ellipse cx='418' cy='146' rx='23' ry='10' transform='rotate(20 418 146)'/></g><path d='M412 76L396 300' stroke='#eee4d6' stroke-width='6' opacity='.85'/><path d='M360 150L368 380' stroke='#fff' stroke-width='5' opacity='.75' stroke-linecap='round'/>`,
+  board: () => `<ellipse cx='400' cy='372' rx='310' ry='84' fill='#4a2f19'/><ellipse cx='400' cy='360' rx='298' ry='74' fill='#7a5230'/><g fill='#d9a441'><circle cx='330' cy='345' r='34'/><circle cx='402' cy='362' r='34'/><circle cx='474' cy='343' r='34'/></g><g fill='#fff' opacity='.4'><circle cx='318' cy='331' r='9'/><circle cx='390' cy='348' r='9'/><circle cx='462' cy='329' r='9'/></g><path d='M215 385l55-32 32 44z' fill='#f2d58a'/><path d='M560 340l40-14 10 40-44 6z' fill='#e8c36a'/><circle cx='545' cy='392' r='16' fill='#8a1c2c'/>`,
+  vinyl: () => `<path d='M650 150L470 312' stroke='#cfc3b4' stroke-width='7' stroke-linecap='round'/><ellipse cx='400' cy='335' rx='290' ry='92' fill='#0a0a0a' stroke='#3a3a3a'/><g fill='none' stroke='#fff' stroke-opacity='.09'><ellipse cx='400' cy='335' rx='250' ry='78'/><ellipse cx='400' cy='335' rx='205' ry='64'/><ellipse cx='400' cy='335' rx='160' ry='50'/></g><ellipse cx='400' cy='335' rx='80' ry='26' fill='#8a1c2c'/><circle cx='400' cy='335' r='5' fill='#000'/><path d='M190 300Q300 246 440 252' stroke='#fff' stroke-opacity='.4' stroke-width='9' fill='none' stroke-linecap='round'/>`,
+  bar: (l, r) => { let b = ""; for (let i = 0; i < 12; i++) { const h = 100 + r() * 70, x = 50 + i * 60; b += `<rect x='${x}' y='${300 - h}' width='30' height='${h}' rx='7' fill='#1c110c' stroke='rgba(255,200,130,.35)'/><rect x='${x + 10}' y='${300 - h - 26}' width='10' height='30' fill='#1c110c'/><rect x='${x + 6}' y='${300 - h * .7}' width='4' height='${h * .5}' fill='#ffd9a0' opacity='.45'/>`; } return `<ellipse cx='400' cy='210' rx='400' ry='90' fill='#ff9a3c' opacity='.28'/>${b}<rect y='300' width='800' height='6' fill='#e2a455' opacity='.5'/><path d='M330 330h60l-30 40z' ${glassStyle}/><path d='M600 322h50l-6 60h-38z' ${glassStyle}/>`; }
+};
+function photo(o) {
+  const r = rng(o.s || 7); let bk = "";
+  for (let i = 0; i < 18; i++) bk += `<circle cx='${r() * 800}' cy='${20 + r() * 240}' r='${12 + r() * 36}' fill='${["#ffb347", "#ff7a3d", "#c2283c", "#ffd9a0"][i % 4]}' opacity='${.15 + r() * .35}'/>`;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 520'><defs><linearGradient id='bg' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#140b09'/><stop offset='1' stop-color='#33190b'/></linearGradient><linearGradient id='tb' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#34200f'/><stop offset='1' stop-color='#0a0605'/></linearGradient><radialGradient id='hot'><stop offset='0' stop-color='#fff2dc' stop-opacity='.55'/><stop offset='1' stop-color='#fff2dc' stop-opacity='0'/></radialGradient><radialGradient id='vg' cx='.5' cy='.55' r='.75'><stop offset='.4' stop-color='#000' stop-opacity='0'/><stop offset='1' stop-color='#000' stop-opacity='.85'/></radialGradient><filter id='bl'><feGaussianBlur stdDeviation='4'/></filter><filter id='gr'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='4'/><feColorMatrix type='saturate' values='0'/></filter></defs><rect width='800' height='520' fill='url(#bg)'/><g filter='url(#bl)'>${bk}</g><rect y='330' width='800' height='190' fill='url(#tb)'/><rect y='330' width='800' height='2' fill='#e2a455' opacity='.3'/><ellipse cx='400' cy='395' rx='320' ry='70' fill='url(#hot)'/>${SCENES[o.t](o.l, r)}<rect width='800' height='520' fill='url(#vg)'/><rect width='800' height='520' filter='url(#gr)' opacity='.16'/></svg>`;
+  return "data:image/svg+xml," + encodeURIComponent(svg);
+}
+const imgOf = (o) => o.foto || photo(o);
+
+/* ---------- Dados ---------- */
+const slides = [
+  { t: "coupe", l: "#d98a2b", s: 11, n: "Calabouço", d: "Mezcal, cajá e mel de abelha nativa.", alt: "Taça coupe com drink âmbar sobre balcão de madeira, sob luz de flash" },
+  { t: "bar", l: "", s: 5, n: "O subsolo", d: "Prateleiras acesas, luz baixa e mesas de madeira.", alt: "Garrafas iluminadas na prateleira do bar ao fundo" },
+  { t: "vinyl", l: "", s: 9, n: "Vinil de quinta a sábado", d: "Jazz, soul e música brasileira, com DJ e ao vivo.", alt: "Disco de vinil girando em uma radiola, com a agulha pousada" }
+];
+const menu = [
+  { n: "Calabouço", cat: "Autorais", p: 42, ing: "mezcal, cajá, mel, limão", d: "Defumado, frutado e longo, com final de mel.", t: "coupe", l: "#d98a2b", s: 21, foto: "", alt: "Drink âmbar em taça coupe, com twist de laranja" },
+  { n: "Grimório", cat: "Autorais", p: 44, ing: "bourbon, café, cacau, bitter de laranja", d: "Escuro, torrado e aveludado. Para quem fica.", t: "rocks", l: "#5b2a12", s: 22, foto: "", alt: "Copo baixo com bebida escura e gelo grande" },
+  { n: "Cálice Negro", cat: "Autorais", p: 40, ing: "gim, jabuticaba, vermute rosso, laranja", d: "Floral e intenso, cor de vinho tinto.", t: "coupe", l: "#6e1426", s: 23, foto: "", alt: "Taça coupe com drink vinho e casca de laranja" },
+  { n: "Negroni", cat: "Clássicos", p: 36, ing: "gim, campari, vermute rosso", d: "Amargo e equilibrado, como manda a receita.", t: "rocks", l: "#a3202e", s: 24, foto: "", alt: "Negroni vermelho em copo baixo com gelo" },
+  { n: "Old Fashioned", cat: "Clássicos", p: 38, ing: "bourbon, açúcar, angostura, laranja", d: "Lento, quente, sem pressa.", t: "rocks", l: "#b9701f", s: 25, foto: "", alt: "Old Fashioned dourado com gelo e casca de laranja" },
+  { n: "Daiquiri", cat: "Clássicos", p: 34, ing: "rum branco, limão, açúcar", d: "Três ingredientes, nenhum defeito.", t: "coupe", l: "#c9d89a", s: 26, foto: "", alt: "Daiquiri claro e gelado em taça coupe" },
+  { n: "Poção Verde", cat: "Sem álcool / Petiscos", p: 26, ing: "hortelã, gengibre, limão siciliano, tônica", d: "Fresca e picante, sem álcool.", t: "tall", l: "#7fae5a", s: 27, foto: "", alt: "Copo alto com bebida verde, hortelã e canudo" },
+  { n: "Bolinho de Pequi", cat: "Sem álcool / Petiscos", p: 28, ing: "pequi, queijo coalho, geleia de pimenta", d: "O Cerrado em mordidas crocantes.", t: "board", l: "", s: 28, foto: "", alt: "Bolinhos dourados sobre tábua de madeira" },
+  { n: "Tábua do Planalto", cat: "Sem álcool / Petiscos", p: 58, ing: "queijos mineiros, linguiça, castanha de baru, mel", d: "Para dividir ao som do vinil.", t: "board", l: "", s: 29, foto: "", alt: "Tábua de frios e queijos em ambiente de pouca luz" }
+];
+const agenda = [
+  { d: "18", w: "Qui", t: "Jazz & Vinil", x: "Set de discos raros com o DJ residente, a partir das 20h." },
+  { d: "19", w: "Sex", t: "Soul Brasileiro ao vivo", x: "Quarteto no palco do subsolo, 21h. Mesas limitadas." },
+  { d: "20", w: "Sáb", t: "Noite do Cerrado", x: "MPB, samba e baião, com participações especiais, 21h30." }
+];
+const about = [
+  { i: "glass", t: "Filosofia da casa", d: "Poucos ingredientes, bem escolhidos. Cada drink nasce da conversa entre técnica clássica e sabores do Cerrado." },
+  { i: "note", t: "Destilados e som", d: "Uma curadoria enxuta de cachaças, mezcais e whiskies, ao lado de uma discoteca que muda toda semana." },
+  { i: "arch", t: "Experiência em Brasília", d: "Um bar para ouvir e ser ouvido: sem pressa, sem telas, com a calma de uma noite de céu aberto na capital." }
+];
+const cats = ["Todos", "Autorais", "Clássicos", "Sem álcool / Petiscos"];
+
+/* ---------- Carrossel (com pausa e teclado) ---------- */
+let cur = 0, timer = null, playing = !matchMedia("(prefers-reduced-motion:reduce)").matches;
+const track = $("#track"), dots = $("#dots");
+slides.forEach((s, i) => {
+  track.insertAdjacentHTML("beforeend", `<figure class="slide" role="group" aria-roledescription="slide" aria-label="${i + 1} de ${slides.length}"><img src="${imgOf(s)}" alt="${s.alt}"><figcaption><b>${s.n}</b><span>${s.d}</span></figcaption></figure>`);
+  dots.insertAdjacentHTML("beforeend", `<button aria-label="Ir para o destaque ${i + 1}" data-i="${i}"></button>`);
+});
+function go(i) {
+  cur = (i + slides.length) % slides.length;
+  track.style.transform = `translateX(-${cur * 100}%)`;
+  [...track.children].forEach((el, j) => (j === cur ? el.removeAttribute("inert") : el.setAttribute("inert", "")));
+  [...dots.children].forEach((d, j) => d.setAttribute("aria-current", j === cur));
+}
+function schedule() { clearInterval(timer); if (playing) timer = setInterval(() => go(cur + 1), 6000); }
+function setPlay(v) {
+  playing = v; schedule();
+  const b = $("#play"); b.innerHTML = ic(v ? "pause" : "play");
+  b.setAttribute("aria-label", v ? "Pausar rotação automática" : "Retomar rotação automática");
+}
+$("#prev").onclick = () => { go(cur - 1); schedule(); };
+$("#next").onclick = () => { go(cur + 1); schedule(); };
+$("#play").onclick = () => setPlay(!playing);
+dots.onclick = (e) => { const b = e.target.closest("button"); if (b) { go(+b.dataset.i); schedule(); } };
+$("#carousel").addEventListener("keydown", (e) => { if (e.key === "ArrowLeft") go(cur - 1); if (e.key === "ArrowRight") go(cur + 1); });
+$("#carousel").addEventListener("mouseenter", () => clearInterval(timer));
+$("#carousel").addEventListener("mouseleave", schedule);
+go(0); setPlay(playing);
+
+/* ---------- Cardápio: abas + busca + detalhe ---------- */
+let cat = "Todos";
+const tabs = $("#tabs"), grid = $("#grid"), q = $("#q");
+cats.forEach((c) => tabs.insertAdjacentHTML("beforeend", `<button role="tab" data-c="${c}" aria-selected="${c === cat}">${c}</button>`));
+function renderMenu() {
+  const term = norm(q.value.trim());
+  $("#clearQ").hidden = !q.value;
+  const list = menu.filter((m) => (cat === "Todos" || m.cat === cat) && norm(m.n + " " + m.ing).includes(term));
+  grid.innerHTML = list.map((m) => `<article class="card" data-i="${menu.indexOf(m)}"><div class="ph"><img src="${imgOf(m)}" alt="${m.alt}" loading="lazy"></div><div class="body"><span class="price">R$ ${m.p}</span><h3><button class="stretch" type="button" aria-haspopup="dialog">${m.n}</button></h3><p>${m.d}</p><p class="ing">${m.ing}</p></div></article>`).join("");
+  $("#count").textContent = list.length ? `${list.length} ${list.length === 1 ? "item encontrado" : "itens encontrados"}` : "Nenhum item encontrado. Tente outro termo ou categoria.";
+}
+tabs.onclick = (e) => {
+  const b = e.target.closest("[role=tab]"); if (!b) return;
+  cat = b.dataset.c; [...tabs.children].forEach((t) => t.setAttribute("aria-selected", t === b)); renderMenu();
+};
+tabs.onkeydown = (e) => {
+  const t = [...tabs.children], i = t.indexOf(document.activeElement);
+  if (i < 0 || !["ArrowLeft", "ArrowRight"].includes(e.key)) return;
+  const n = t[(i + (e.key === "ArrowRight" ? 1 : -1) + t.length) % t.length]; n.focus(); n.click();
+};
+q.oninput = renderMenu;
+$("#clearQ").onclick = () => { q.value = ""; renderMenu(); q.focus(); };
+let openItem = null;
+grid.onclick = (e) => {
+  const c = e.target.closest(".card"); if (!c) return;
+  const m = (openItem = menu[+c.dataset.i]);
+  $("#iImg").src = imgOf(m); $("#iImg").alt = m.alt;
+  $("#iCat").textContent = m.cat; $("#iName").textContent = m.n; $("#iDesc").textContent = m.d;
+  $("#iIng").textContent = "Ingredientes: " + m.ing; $("#iPrice").textContent = "R$ " + m.p;
+  $("#itemDlg").showModal();
+};
+renderMenu();
+
+/* ---------- Programação ---------- */
+$("#agenda").innerHTML = agenda.map((a, i) => `<li><div class="day">${a.d}<small>${a.w}</small></div><div><h3>${a.t}</h3><p>${a.x}</p></div><button class="btn sm" data-a="${i}">${ic("cal")}Reservar</button></li>`).join("");
+$("#agenda").onclick = (e) => {
+  const b = e.target.closest("[data-a]"); if (!b) return;
+  const a = agenda[+b.dataset.a];
+  book(`Quero reservar uma mesa para: ${a.t} (${a.w}, dia ${a.d}).`);
+};
+
+/* ---------- A casa ---------- */
+$("#about").innerHTML = about.map((a) => `<article class="card"><div class="body">${ic(a.i)}<h3>${a.t}</h3><p>${a.d}</p></div></article>`).join("");
+
+/* ---------- Reservar: leva ao formulário já preenchido ---------- */
+function book(text) {
+  document.querySelectorAll("dialog[open]").forEach((d) => d.close());
+  $("#cSubj").value = "Reserva de mesa";
+  if (text && !$("#cMsg").value) $("#cMsg").value = text;
+  $("#contato").scrollIntoView({ behavior: "smooth" });
+  setTimeout(() => $("#cName").focus({ preventScroll: true }), 500);
+}
+$("#iBook").onclick = () => book(openItem ? `Quero reservar uma mesa e provar o ${openItem.n}.` : "");
+
+/* ---------- Acessibilidade (preferências salvas, se permitido) ---------- */
+const root = document.documentElement;
+let fs = 100, theme = null, hc = false;
+try { const s = JSON.parse(localStorage.getItem("masmorraA11y") || "{}"); fs = s.fs || 100; theme = s.theme || null; hc = !!s.hc; } catch (e) {}
+const dark = () => (theme ? theme === "dark" : matchMedia("(prefers-color-scheme:dark)").matches);
+function applyA11y() {
+  root.style.fontSize = fs + "%";
+  theme ? (root.dataset.theme = theme) : delete root.dataset.theme;
+  hc ? (root.dataset.contrast = "high") : delete root.dataset.contrast;
+  $("#themeBtn").innerHTML = dark() ? ic("moon") + "Modo escuro" : ic("sun") + "Modo claro";
+  $("#themeBtn").setAttribute("aria-label", "Alternar tema. Atual: " + (dark() ? "escuro" : "claro"));
+  $("#hcBtn").setAttribute("aria-pressed", hc);
+  try { localStorage.setItem("masmorraA11y", JSON.stringify({ fs, theme, hc })); } catch (e) {}
+}
+$("#themeBtn").onclick = () => { theme = dark() ? "light" : "dark"; applyA11y(); };
+$("#fPlus").onclick = () => { fs = Math.min(150, fs + 10); applyA11y(); };
+$("#fMinus").onclick = () => { fs = Math.max(80, fs - 10); applyA11y(); };
+$("#fReset").onclick = () => { fs = 100; applyA11y(); };
+$("#hcBtn").onclick = () => { hc = !hc; applyA11y(); };
+$("#a11yBtn").onclick = () => { const p = $("#a11yPanel"); p.hidden = !p.hidden; $("#a11yBtn").setAttribute("aria-expanded", !p.hidden); };
+applyA11y();
+
+/* ---------- Menu móvel, topo e Esc ---------- */
+$("#menuBtn").onclick = () => { const n = $("#nav").classList.toggle("open"); $("#menuBtn").setAttribute("aria-expanded", n); };
+$("#nav").onclick = (e) => { if (e.target.closest("a")) { $("#nav").classList.remove("open"); $("#menuBtn").setAttribute("aria-expanded", false); } };
+$("#top").onclick = () => scrollTo({ top: 0, behavior: "smooth" });
+addEventListener("scroll", () => { $("#top").hidden = scrollY < 700; }, { passive: true });
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  if (!$("#a11yPanel").hidden) { $("#a11yPanel").hidden = true; $("#a11yBtn").setAttribute("aria-expanded", false); $("#a11yBtn").focus(); }
+  $("#nav").classList.remove("open");
+});
+
+/* ---------- Modais: fechar com botão ou clique no fundo ---------- */
+document.querySelectorAll("dialog").forEach((d) => d.addEventListener("click", (e) => { if (e.target === d) d.close(); }));
+$("#itemClose").onclick = () => $("#itemDlg").close();
+$("#privBtn").onclick = () => $("#privDlg").showModal();
+$("#privClose").onclick = () => $("#privDlg").close();
+
+/* ---------- Validação reutilizável ---------- */
+function setErr(input, errEl, msg) {
+  errEl.textContent = msg || "";
+  msg ? input.setAttribute("aria-invalid", "true") : input.removeAttribute("aria-invalid");
+  msg ? input.setAttribute("aria-describedby", errEl.id) : input.removeAttribute("aria-describedby");
+  return !msg;
+}
+const mailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+
+/* ---------- Login (demonstração, sem servidor) ---------- */
+const dlg = $("#loginDlg"); let user = null;
+$("#loginBtn").onclick = () => {
+  if (user) { user = null; $("#loginBtn").innerHTML = ic("user") + '<span class="t">Entrar</span>'; return; } // sair
+  $("#lMsg").hidden = true; dlg.showModal();
+};
+$("#loginClose").onclick = () => dlg.close();
+$("#showPw").onclick = () => {
+  const p = $("#lPass"), s = p.type === "password"; p.type = s ? "text" : "password";
+  $("#showPw").setAttribute("aria-pressed", s); $("#showPw").setAttribute("aria-label", s ? "Ocultar senha" : "Mostrar senha");
+};
+$("#forgot").onclick = () => {
+  const m = $("#lMail");
+  if (!setErr(m, $("#lMailE"), mailOk(m.value) ? "" : "Informe seu e-mail para recuperar a senha.")) return m.focus();
+  $("#lMsg").hidden = false; $("#lMsg").textContent = `Se ${m.value} estiver cadastrado, enviaremos um link de recuperação (demonstração).`;
+};
+$("#loginForm").onsubmit = (e) => {
+  e.preventDefault();
+  const m = $("#lMail"), p = $("#lPass"), box = $("#lMsg");
+  const a = setErr(m, $("#lMailE"), mailOk(m.value) ? "" : "Informe um e-mail válido.");
+  const b = setErr(p, $("#lPassE"), p.value.length >= 6 ? "" : "A senha deve ter ao menos 6 caracteres.");
+  if (!a || !b) { box.hidden = true; (a ? p : m).focus(); return; }
+  user = m.value.split("@")[0];
+  box.hidden = false; box.textContent = "Login realizado com sucesso (demonstração).";
+  $("#loginBtn").innerHTML = ic("user") + `<span class="t">Sair (${user})</span>`;
+  setTimeout(() => dlg.close(), 1100);
+};
+
+/* ---------- Contato (demonstração: confirmação local) ---------- */
+$("#contactForm").onsubmit = (e) => {
+  e.preventDefault();
+  const n = $("#cName"), m = $("#cMail"), t = $("#cMsg");
+  const r = [
+    setErr(n, $("#cNameE"), n.value.trim() ? "" : "Informe seu nome."),
+    setErr(m, $("#cMailE"), mailOk(m.value) ? "" : "Informe um e-mail válido."),
+    setErr(t, $("#cMsgE"), t.value.trim().length >= 10 ? "" : "Escreva ao menos 10 caracteres.")
+  ];
+  if (r.includes(false)) { [n, m, t][r.indexOf(false)].focus(); return; }
+  const ok = $("#cOk"); ok.hidden = false;
+  ok.textContent = `Obrigado, ${n.value.trim()}! Recebemos sua mensagem (${$("#cSubj").value}) e responderemos em ${m.value}.`;
+  e.target.reset();
+};
+inject();
+</script>
+</body>
+</html>
